@@ -42,7 +42,7 @@ class Connection  implements ConnectionInterface
      * @param AdaptatorInterface $soapAdaptator Soap Adaptator
      * @param Array $restrictions Restriction (DataSourceInfo, CatalogName, SchemaName)
      */
-	function __construct(AdaptatorInterface $soapAdaptator, Array $restrictions = null)
+	public function __construct(AdaptatorInterface $soapAdaptator, Array $restrictions = null)
 	{
 		$this->soapAdaptator = $soapAdaptator;
 		$this->dataSourceInfo = isset($restrictions['DataSourceInfo']) ? $restrictions['DataSourceInfo'] : null;
@@ -50,6 +50,32 @@ class Connection  implements ConnectionInterface
 		$this->schemaName = isset($restrictions['SchemaName']) ? $restrictions['SchemaName'] : null;
 	}
 	
+    /**
+     * Set catalog name
+     *
+     * @param string $catalogName
+     * @return Connection
+     */
+    public function setCatalogName($catalogName)
+    {
+        $this->catalogName = $catalogName;
+        
+        return $this;
+    }
+    
+    /**
+     * Set schema name
+     *
+     * @param string $schemaName
+     * @return Connection
+     */
+    public function setSchemaName($schemaName)
+    {
+        $this->schemaName = $schemaName;
+        
+        return $this;
+    }
+    
     /**
      * {@inheritdoc}
      */
