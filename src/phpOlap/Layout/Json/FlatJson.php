@@ -55,22 +55,27 @@ class FlatJson implements LayoutInterface
             'rows' => array(),
             'columns' => array()
         );
-        foreach ($this->resultSet->getColAxisSet() as $row => $colHierarchyName) {
-            $header['rows'][] = array(
-                'memberUniqueName' => $colHierarchyName[0]->getMemberUniqueName(),
-                'memberCaption' => $colHierarchyName[0]->getMemberCaption()
-            );
+        $colAxisSet = $this->resultSet->getColAxisSet();
+        if (isset($colAxisSet)) {
+            foreach ($colAxisSet as $row => $colHierarchyName) {
+                $header['rows'][] = array(
+                    'memberUniqueName' => $colHierarchyName[0]->getMemberUniqueName(),
+                    'memberCaption' => $colHierarchyName[0]->getMemberCaption()
+                );
+            }
         }
         $rowAxisSet = $this->resultSet->getRowAxisSet();
-        $rowAxisDefinition = reset($rowAxisSet);
-        foreach ($rowAxisDefinition as $col => $rowHierarchyName) {
-            $mdxName = $rowHierarchyName->getLevelUniqueName();
-            $nameHierarchy = explode('.', str_replace(array('[', ']'), '', $mdxName));
-            $caption = end($nameHierarchy);
-            $header['columns'][] = array(
-                'memberUniqueName' => $rowHierarchyName->getLevelUniqueName(),
-                'memberCaption' => $caption
-            );
+        if (isset($rowAxisSet)) {
+            $rowAxisDefinition = reset($rowAxisSet);
+            foreach ($rowAxisDefinition as $col => $rowHierarchyName) {
+                $mdxName = $rowHierarchyName->getLevelUniqueName();
+                $nameHierarchy = explode('.', str_replace(array('[', ']'), '', $mdxName));
+                $caption = end($nameHierarchy);
+                $header['columns'][] = array(
+                    'memberUniqueName' => $rowHierarchyName->getLevelUniqueName(),
+                    'memberCaption' => $caption
+                );
+            }
         }
         $header['headers'] = array_merge($header['columns'], $header['rows']);
 
@@ -89,6 +94,23 @@ class FlatJson implements LayoutInterface
 		$dataSet = $this->resultSet->getDataSet();
         $columnAxisSet = $this->resultSet->getColAxisSet();
         $columnAxisCount = count($columnAxisSet);
+        // Handle a set with no rows specified
+        if (!isset($rowAxisSet)) {
+            if (isset($columnAxisSet)) {
+                $return = array();
+                $counter = 0;
+                foreach ($columnAxisSet as $colAxis) {
+                    $return[$colAxis[0]->getMemberUniqueName()] = array(
+                        'label' => $colAxis[0]->getMemberCaption(),
+                        'value' => $dataSet[$counter]->getValue(),
+                        'formatedValue' => $dataSet[$counter]->getFormatedValue()
+                    );
+                    $counter++;
+                }
+                $body[] = $return;
+            }
+            return $body;
+        }
         foreach ($rowAxisSet as $rowNumber => $aCol) {
             $row = array();
             $start = $columnAxisCount * $rowNumber;
