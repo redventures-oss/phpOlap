@@ -102,8 +102,8 @@ class FlatJson implements LayoutInterface
                 foreach ($columnAxisSet as $colAxis) {
                     $return[$colAxis[0]->getMemberUniqueName()] = array(
                         'label' => $colAxis[0]->getMemberCaption(),
-                        'value' => $dataSet[$counter]->getValue(),
-                        'formatedValue' => $dataSet[$counter]->getFormatedValue()
+                        'value' => isset($dataSet[$counter]) ? $dataSet[$counter]->getValue() : null,
+                        'formatedValue' => isset($dataSet[$counter]) ? $dataSet[$counter]->getFormatedValue(): null
                     );
                     $counter++;
                 }
