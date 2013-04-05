@@ -4,3 +4,4 @@ doc/*
 cov/*
 doc.docx
 nbproject/*
+vendor/*
