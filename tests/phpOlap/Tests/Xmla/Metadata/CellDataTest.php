@@ -18,6 +18,25 @@ class CellDataTest extends \PHPUnit_Framework_TestCase
 
 	public function testHydrate()
 	{
+        $cell = $this->createCell();
+
+		$this->assertEquals($cell->getValue(), 39431.6712);
+		$this->assertEquals($cell->getFormatedValue(), '$39,431.67');
+		$this->assertEquals($cell->getFormatString(), 'Currency');
+	}
+
+    public function testToArray()
+    {
+        $cell = $this->createCell();
+        $arr = $cell->toArray();
+
+		$this->assertEquals($arr['value'], 39431.6712);
+		$this->assertEquals($arr['formatedValue'], '$39,431.67');
+		$this->assertEquals($arr['formatString'], 'Currency');
+    }
+
+    private function createCell()
+    {
 		
 		$cellXml = new \DOMDocument();
 		$cellXml->loadXML('
@@ -30,12 +49,8 @@ class CellDataTest extends \PHPUnit_Framework_TestCase
 		$node = $cellXml->getElementsByTagName('Cell')->item(0);
 		
 		$cell = new CellData();
-		
 		$cell->hydrate($node);
-		
-		$this->assertEquals($cell->getValue(), 39431.6712);
-		$this->assertEquals($cell->getFormatedValue(), '$39,431.67');
-		$this->assertEquals($cell->getFormatString(), 'Currency');
-	}
-	
+
+        return $cell;
+    }
 }

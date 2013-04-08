@@ -18,7 +18,30 @@ class CellAxisTest extends \PHPUnit_Framework_TestCase
 
 	public function testHydrate()
 	{
+		$cellAxis = $this->createCellAxis();
 		
+		$this->assertEquals($cellAxis->getMemberUniqueName(), '[Employees].[All Employees]');
+		$this->assertEquals($cellAxis->getMemberCaption(), 'All Employees');
+		$this->assertEquals($cellAxis->getLevelUniqueName(), '[Employees].[(All)]');
+		$this->assertEquals($cellAxis->getLevelNumber(), 0);
+		$this->assertEquals($cellAxis->getDisplayInfo(), 65537);
+	}
+
+    public function testToArray()
+    {
+		$cellAxis = $this->createCellAxis();
+        $arr = $cellAxis->toArray();
+
+        $this->assertTrue(is_array($arr));
+    	$this->assertEquals($arr['memberUniqueName'], '[Employees].[All Employees]');
+		$this->assertEquals($arr['memberCaption'], 'All Employees');
+		$this->assertEquals($arr['levelUniqueName'], '[Employees].[(All)]');
+		$this->assertEquals($arr['levelNumber'], 0);
+		$this->assertEquals($arr['displayInfo'], 65537);
+    }
+
+    private function createCellAxis()
+    {
 		$axisXml = new \DOMDocument();
 		$axisXml->loadXML('
 			<Member Hierarchy="Employees">
@@ -32,14 +55,8 @@ class CellAxisTest extends \PHPUnit_Framework_TestCase
 		$node = $axisXml->getElementsByTagName('Member')->item(0);
 		
 		$cellAxis = new CellAxis();
-		
 		$cellAxis->hydrate($node);
-		
-		$this->assertEquals($cellAxis->getMemberUniqueName(), '[Employees].[All Employees]');
-		$this->assertEquals($cellAxis->getMemberCaption(), 'All Employees');
-		$this->assertEquals($cellAxis->getLevelUniqueName(), '[Employees].[(All)]');
-		$this->assertEquals($cellAxis->getLevelNumber(), 0);
-		$this->assertEquals($cellAxis->getDisplayInfo(), 65537);
-	}
-	
+
+        return $cellAxis;
+    }
 }

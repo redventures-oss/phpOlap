@@ -13,6 +13,7 @@ namespace phpOlap\Xmla\Metadata;
 
 use phpOlap\Xmla\Connection\ConnectionInterface;
 use phpOlap\Metadata\CellAxisInterface;
+use phpOlap\Metadata\SerializeMetadataInterface;
 use phpOlap\Xmla\Metadata\MetadataBase;
 
 
@@ -24,7 +25,7 @@ use phpOlap\Xmla\Metadata\MetadataBase;
 *  	@author Julien Jacottet <jjacottet@gmail.com>
 */
 
-class CellAxis implements CellAxisInterface
+class CellAxis implements CellAxisInterface, SerializeMetadataInterface
 {
 
 	protected $memberUniqueName;
@@ -103,5 +104,19 @@ class CellAxis implements CellAxisInterface
 		$this->levelNumber = MetadataBase::getPropertyFromNode($node, 'LNum', false);
 		$this->displayInfo = MetadataBase::getPropertyFromNode($node, 'DisplayInfo');
 	}
+
+    /**
+     * {@inheritDoc}
+     */
+    public function toArray()
+    {
+        return array(
+            'memberUniqueName' => $this->getMemberUniqueName(),
+            'memberCaption' => $this->getMemberCaption(),
+            'levelUniqueName' => $this->getLevelUniqueName(),
+            'levelNumber' => $this->getLevelNumber(),
+            'displayInfo' => $this->getDisplayInfo()
+        );
+    }
 	
 }

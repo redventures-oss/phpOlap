@@ -13,6 +13,7 @@ namespace phpOlap\Xmla\Metadata;
 
 use phpOlap\Xmla\Connection\ConnectionInterface;
 use phpOlap\Metadata\CatalogInterface;
+use phpOlap\Metadata\SerializeMetadataInterface;
 use phpOlap\Xmla\Metadata\MetadataBase;
 
 
@@ -23,7 +24,7 @@ use phpOlap\Xmla\Metadata\MetadataBase;
 *	@package Xmla
 *	@subpackage Metadata
 */
-class Catalog extends MetadataBase implements CatalogInterface
+class Catalog extends MetadataBase implements CatalogInterface, SerializeMetadataInterface
 {
 	protected $roles;
 	protected $schemas;
@@ -82,4 +83,24 @@ class Catalog extends MetadataBase implements CatalogInterface
 		$roles = parent::getPropertyFromNode($node, 'ROLES');
 		$this->roles = explode(",", $roles);
 	}
+
+    /**
+     * {@inheritDoc}
+     */
+    public function toArray()
+    {
+        $schemas = array();
+
+        foreach ((array) $this->getSchemas() as $schema) {
+            $schemas[] = $schema->toArray();
+        }
+
+        return array(
+            'name' => $this->getName(),
+            'description' => $this->getDescription(),
+            'roles' => $this->getRoles(),
+            'uniqueName' => $this->getUniqueName(),
+            'schemas' => $schemas
+        );
+    }
 }

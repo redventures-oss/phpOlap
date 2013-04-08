@@ -14,6 +14,7 @@ namespace phpOlap\Xmla\Metadata;
 use phpOlap\Xmla\Connection\ConnectionInterface;
 use phpOlap\Xmla\Metadata\MetadataBase;
 use phpOlap\Metadata\DatabaseInterface;
+use phpOlap\Metadata\SerializeMetadataInterface;
 
 /**
 *	Database class
@@ -22,7 +23,7 @@ use phpOlap\Metadata\DatabaseInterface;
 *	@package Xmla
 *	@subpackage Metadata
 */
-class Database extends MetadataBase implements DatabaseInterface
+class Database extends MetadataBase implements DatabaseInterface, SerializeMetadataInterface
 {
 	protected $url;
 	protected $dataSourceInfo;
@@ -125,5 +126,29 @@ class Database extends MetadataBase implements DatabaseInterface
 		$this->providerType = parent::getPropertyFromNode($node, 'ProviderType');
 		$this->authenticationMode = parent::getPropertyFromNode($node, 'AuthenticationMode');
 	}
+
+    /**
+     * {@inheritDoc}
+     */
+    public function toArray()
+    {
+        $catalogs = array();
+
+        foreach ((array) $this->getCatalogs() as $catalog) {
+            $catalogs[] = $catalog->toArray();
+        }
+
+        return array(
+            'name' => $this->getName(),
+            'uniqueName' => $this->getUniqueName(),
+            'description' => $this->getDescription(),
+            'url' => $this->getUrl(),
+            'dataSourceInfo' => $this->getDataSourceInfo(),
+            'providerName' => $this->getProviderName(),
+            'providerType' => $this->getProviderType(),
+            'authenticationMode' => $this->getAuthenticationMode(),
+            'catalogs' => $catalogs
+        );
+    }
 
 }

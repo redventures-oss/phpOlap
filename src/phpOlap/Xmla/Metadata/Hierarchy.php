@@ -14,6 +14,7 @@ namespace phpOlap\Xmla\Metadata;
 use phpOlap\Xmla\Connection\ConnectionInterface;
 use phpOlap\Xmla\Metadata\MetadataBase;
 use phpOlap\Metadata\HierarchyInterface;
+use phpOlap\Metadata\SerializeMetadataInterface;
 
 /**
 *	Hierarchy class
@@ -22,7 +23,7 @@ use phpOlap\Metadata\HierarchyInterface;
 *	@package Xmla
 *	@subpackage Metadata
 */
-class Hierarchy extends MetadataBase implements HierarchyInterface
+class Hierarchy extends MetadataBase implements HierarchyInterface, SerializeMetadataInterface
 {
 	protected $cubeName;
 	protected $dimensionUniqueName;
@@ -192,4 +193,30 @@ class Hierarchy extends MetadataBase implements HierarchyInterface
 		$this->ordinal = parent::getPropertyFromNode($node, 'HIERARCHY_ORDINAL');
 		$this->parentChild = parent::getPropertyFromNode($node, 'PARENT_CHILD');	
 	}
+
+    public function toArray()
+    {
+        $levels = array();
+
+        foreach ((array) $this->getLevels() as $level) {
+            $levels[] = $level->toArray();
+        }
+
+        return array(
+            'cubeName' => $this->getCubeName(),
+            'dimensionUniqueName' => $this->getDimensionUniqueName(),
+            'name' => $this->getName(),
+            'uniqueName' => $this->getUniqueName(),
+            'description' => $this->getDescription(),
+            'caption' => $this->getCaption(),
+            'cardinality' => $this->getCardinality(),
+            'defaultMemberUniqueName' => $this->getDefaultMemberUniqueName(),
+            'structure' => $this->getStructure(),
+            'isVirtual' => $this->isVirtual(),
+            'isReadWrite' => $this->isReadWrite(),
+            'ordinal' => $this->getOrdinal(),
+            'parentChild' => $this->getParentChild(),
+            'levels' => $levels
+        );
+    }
 }

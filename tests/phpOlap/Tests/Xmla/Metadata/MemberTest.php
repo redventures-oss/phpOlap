@@ -18,6 +18,86 @@ class MemberTest extends \PHPUnit_Framework_TestCase
 
 	public function testHydrate()
 	{
+		$connection = $this->createConnection();
+        $member = $this->createMember($connection);
+		
+		$this->assertEquals($member->getConnection(), $connection);
+		$this->assertEquals($member->getName(), 'Store Cost');
+		$this->assertEquals($member->getUniqueName(), '[Measures].[Store Cost]');
+		$this->assertEquals($member->getDescription(), null);
+		$this->assertEquals($member->getCaption(), 'Store Cost');
+		$this->assertEquals($member->getOrdinal(), 1);
+		$this->assertEquals($member->getType(), 'MEASURE');
+		$this->assertEquals($member->getChildrenCardinality(), 2);
+		$this->assertEquals($member->getParentLevel(), 1);
+		$this->assertEquals($member->getParentCount(), 4);
+		$this->assertEquals($member->getDepth(), 10);
+	}
+
+    public function testToArray()
+    {
+		$connection = $this->createConnection();
+        $member = $this->createMember($connection);
+        $arr = $member->toArray();
+
+		$this->assertEquals($arr['name'], 'Store Cost');
+		$this->assertEquals($arr['uniqueName'], '[Measures].[Store Cost]');
+		$this->assertEquals($arr['description'], null);
+		$this->assertEquals($arr['caption'], 'Store Cost');
+		$this->assertEquals($arr['ordinal'], 1);
+		$this->assertEquals($arr['type'], 'MEASURE');
+		$this->assertEquals($arr['childrenCardinality'], 2);
+		$this->assertEquals($arr['parentLevel'], 1);
+		$this->assertEquals($arr['parentCount'], 4);
+		$this->assertEquals($arr['depth'], 10);
+    }
+
+	public function testHydrateMin()
+	{
+		$resultSoap = '<root>
+					      <row>
+					        <CATALOG_NAME>FoodMart</CATALOG_NAME>
+					        <SCHEMA_NAME>FoodMart</SCHEMA_NAME>
+					        <CUBE_NAME>Sales</CUBE_NAME>
+					        <DIMENSION_UNIQUE_NAME>[Measures]</DIMENSION_UNIQUE_NAME>
+					        <HIERARCHY_UNIQUE_NAME>[Measures]</HIERARCHY_UNIQUE_NAME>
+					        <LEVEL_UNIQUE_NAME>[Measures].[MeasuresLevel]</LEVEL_UNIQUE_NAME>
+					        <MEMBER_NAME>Store Cost</MEMBER_NAME>
+					        <MEMBER_UNIQUE_NAME>[Measures].[Store Cost]</MEMBER_UNIQUE_NAME>
+					      </row> 
+						</root>';
+		
+		$document = new \DOMDocument();
+		$document->loadXML($resultSoap);
+		
+		$node = $document->getElementsByTagName('row')->item(0);
+		
+		$connection = $this->createConnection();
+
+		$member = new Member();
+		
+		$member->hydrate($node, $connection);
+		
+		$this->assertEquals($member->getConnection(), $connection);
+		$this->assertEquals($member->getName(), 'Store Cost');
+		$this->assertEquals($member->getUniqueName(), '[Measures].[Store Cost]');
+		$this->assertEquals($member->getDescription(), null);
+		$this->assertEquals($member->getCaption(), null);
+		$this->assertEquals($member->getOrdinal(), 0);
+		$this->assertEquals($member->getType(), 'UNKNOWN');
+		$this->assertEquals($member->getChildrenCardinality(), 0);
+		$this->assertEquals($member->getParentLevel(), 0);
+		$this->assertEquals($member->getParentCount(), 0);
+		$this->assertEquals($member->getDepth(), 0);
+	}
+
+    private function createConnection()
+    {
+		return $this->getMock('phpOlap\Xmla\Connection\Connection', array(), array(), '', FALSE);
+    }
+
+    private function createMember($connection)
+    {
 		$resultSoap = '<root>
 					      <row>
 					        <CATALOG_NAME>FoodMart</CATALOG_NAME>
@@ -44,62 +124,11 @@ class MemberTest extends \PHPUnit_Framework_TestCase
 		
 		$node = $document->getElementsByTagName('row')->item(0);
 		
-		$connection = $this->getMock('phpOlap\Xmla\Connection\Connection', array(), array(), '', FALSE);
 
 		$member = new Member();
-		
-		$member	->hydrate($node, $connection);
-		
-		$this->assertEquals($member->getConnection(), $connection);
-		$this->assertEquals($member->getName(), 'Store Cost');
-		$this->assertEquals($member->getUniqueName(), '[Measures].[Store Cost]');
-		$this->assertEquals($member->getDescription(), null);
-		$this->assertEquals($member->getCaption(), 'Store Cost');
-		$this->assertEquals($member->getOrdinal(), 1);
-		$this->assertEquals($member->getType(), 'MEASURE');
-		$this->assertEquals($member->getChildrenCardinality(), 2);
-		$this->assertEquals($member->getParentLevel(), 1);
-		$this->assertEquals($member->getParentCount(), 4);
-		$this->assertEquals($member->getDepth(), 10);
-	}
-
-	public function testHydrateMin()
-	{
-		$resultSoap = '<root>
-					      <row>
-					        <CATALOG_NAME>FoodMart</CATALOG_NAME>
-					        <SCHEMA_NAME>FoodMart</SCHEMA_NAME>
-					        <CUBE_NAME>Sales</CUBE_NAME>
-					        <DIMENSION_UNIQUE_NAME>[Measures]</DIMENSION_UNIQUE_NAME>
-					        <HIERARCHY_UNIQUE_NAME>[Measures]</HIERARCHY_UNIQUE_NAME>
-					        <LEVEL_UNIQUE_NAME>[Measures].[MeasuresLevel]</LEVEL_UNIQUE_NAME>
-					        <MEMBER_NAME>Store Cost</MEMBER_NAME>
-					        <MEMBER_UNIQUE_NAME>[Measures].[Store Cost]</MEMBER_UNIQUE_NAME>
-					      </row> 
-						</root>';
-		
-		$document = new \DOMDocument();
-		$document->loadXML($resultSoap);
-		
-		$node = $document->getElementsByTagName('row')->item(0);
-		
-		$connection = $this->getMock('phpOlap\Xmla\Connection\Connection', array(), array(), '', FALSE);
-
-		$member = new Member();
-		
 		$member->hydrate($node, $connection);
-		
-		$this->assertEquals($member->getConnection(), $connection);
-		$this->assertEquals($member->getName(), 'Store Cost');
-		$this->assertEquals($member->getUniqueName(), '[Measures].[Store Cost]');
-		$this->assertEquals($member->getDescription(), null);
-		$this->assertEquals($member->getCaption(), null);
-		$this->assertEquals($member->getOrdinal(), 0);
-		$this->assertEquals($member->getType(), 'UNKNOWN');
-		$this->assertEquals($member->getChildrenCardinality(), 0);
-		$this->assertEquals($member->getParentLevel(), 0);
-		$this->assertEquals($member->getParentCount(), 0);
-		$this->assertEquals($member->getDepth(), 0);
-	}
+
+        return $member;
+    }
 
 }

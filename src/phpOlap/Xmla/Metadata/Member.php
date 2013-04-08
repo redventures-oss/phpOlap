@@ -14,6 +14,7 @@ namespace phpOlap\Xmla\Metadata;
 use phpOlap\Xmla\Connection\ConnectionInterface;
 use phpOlap\Xmla\Metadata\MetadataBase;
 use phpOlap\Metadata\MemberInterface;
+use phpOlap\Metadata\SerializeMetadataInterface;
 
 
 /**
@@ -22,7 +23,7 @@ use phpOlap\Metadata\MemberInterface;
 *  	@author Julien Jacottet <jjacottet@gmail.com>
 *	@package Metadata
 */
-class Member extends MetadataBase implements MemberInterface
+class Member extends MetadataBase implements MemberInterface, SerializeMetadataInterface
 {
 	protected $description = null;
 	protected $ordinal;
@@ -140,4 +141,23 @@ class Member extends MetadataBase implements MemberInterface
 		$this->depth = parent::getPropertyFromNode($node, 'DEPTH');
 
 	}
+
+    /**
+     * {@inheritDoc}
+     */
+    public function toArray()
+    {
+        return array(
+            'name' => $this->getName(),
+            'uniqueName' => $this->getUniqueName(),
+            'description' => $this->getDescription(),
+            'ordinal' => $this->getOrdinal(),
+            'type' => $this->getType(),
+            'caption' => $this->getCaption(),
+            'childrenCardinality' => $this->getChildrenCardinality(),
+            'parentLevel' => $this->getParentLevel(),
+            'parentCount' => $this->getParentCount(),
+            'depth' => $this->getDepth()
+        );
+    }
 }

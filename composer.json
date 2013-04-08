@@ -1,7 +1,7 @@
 {
     "name": "phpOlap/php-olap-framework",
     "autoload": {
-        "psr-0": { "": "src/" }
+        "psr-0": { "": [ "src/", "tests/" ] }
     },
     "repositories": [
         {

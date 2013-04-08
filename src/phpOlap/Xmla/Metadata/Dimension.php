@@ -16,6 +16,7 @@ use phpOlap\Xmla\Metadata\MetadataBase;
 use phpOlap\Xmla\Metadata\Hierarchy;
 use phpOlap\Xmla\Metadata\Level;
 use phpOlap\Metadata\DimensionInterface;
+use phpOlap\Metadata\SerializeMetadataInterface;
 
 /**
 *	Dimension class
@@ -24,7 +25,7 @@ use phpOlap\Metadata\DimensionInterface;
 *	@package Xmla
 *	@subpackage Metadata
 */
-class Dimension extends MetadataBase implements DimensionInterface
+class Dimension extends MetadataBase implements DimensionInterface, SerializeMetadataInterface
 {
 	protected $cubeName;
 	protected $caption;
@@ -227,6 +228,34 @@ class Dimension extends MetadataBase implements DimensionInterface
 		$this->uniqueSettings = parent::getPropertyFromNode($node, 'DIMENSION_UNIQUE_SETTINGS');
 		$this->isVisible = parent::getPropertyFromNode($node, 'DIMENSION_IS_VISIBLE');
 	}
-	
+
+    /**
+     * {@inheritDoc}
+     */
+    public function toArray()
+    {
+        $hierarchies = array();
+
+        foreach ((array) $this->getHierarchies() as $hierarchy) {
+            $hierarchies[] = $hierarchy->toArray();
+        }
+
+        return array(
+            'cubeName' => $this->getCubeName(),
+            'name' => $this->getName(),
+            'uniqueName' => $this->getUniqueName(),
+            'description' => $this->getDescription(),
+            'caption' => $this->getCaption(),
+            'ordinal' => $this->getOrdinal(),
+            'type' => $this->getType(),
+            'cardinality' => $this->getCardinality(),
+            'defaultHierarchyUniqueName' => $this->getDefaultHierarchyUniqueName(),
+            'isVirtual' => $this->isVirtual(),
+            'isReadWrite' => $this->isReadWrite(),
+            'uniqueSettings' => $this->getUniqueSettings(),
+            'isVisible' => $this->isVisible(),
+            'hierarchies' => $hierarchies
+        );
+    }
 	
 }

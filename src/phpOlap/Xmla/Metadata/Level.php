@@ -14,6 +14,7 @@ namespace phpOlap\Xmla\Metadata;
 use phpOlap\Xmla\Connection\ConnectionInterface;
 use phpOlap\Xmla\Metadata\MetadataBase;
 use phpOlap\Metadata\LevelInterface;
+use phpOlap\Metadata\SerializeMetadataInterface;
 
 /**
 *	Level class
@@ -22,7 +23,7 @@ use phpOlap\Metadata\LevelInterface;
 *	@package Xmla
 *	@subpackage Metadata
 */
-class Level extends MetadataBase implements LevelInterface
+class Level extends MetadataBase implements LevelInterface, SerializeMetadataInterface
 {
 	protected $cubeName;
 	protected $dimensionUniqueName;
@@ -183,5 +184,34 @@ class Level extends MetadataBase implements LevelInterface
 		$this->uniqueSettings = parent::getPropertyFromNode($node, 'LEVEL_UNIQUE_SETTINGS');
 		$this->isVisible = parent::getPropertyFromNode($node, 'LEVEL_IS_VISIBLE');
 	}
+
+    /**
+     * {@inheritDoc}
+     */
+    public function toArray()
+    {
+        $members = array();
+
+        foreach ((array) $this->getMembers() as $member) {
+            $members[] = $member->toArray();
+        }
+
+        return array(
+            'cubeName' => $this->getCubeName(),
+            'dimensionUniqueName' => $this->getDimensionUniqueName(),
+            'hierarchyUniqueName' => $this->getHierarchyUniqueName(),
+            'name' => $this->getName(),
+            'uniqueName' => $this->getUniqueName(),
+            'description' => $this->getDescription(),
+            'caption' => $this->getCaption(),
+            'number' => $this->number,
+            'cardinality' => $this->getCardinality(),
+            'type' => $this->getType(),
+            'customRollupSettings' => $this->getCustomRollupSettings(),
+            'uniqueSettings' => $this->getUniqueSettings(),
+            'isVisible' => $this->isVisible(),
+            'members' => $members
+        );
+    }
 
 }
