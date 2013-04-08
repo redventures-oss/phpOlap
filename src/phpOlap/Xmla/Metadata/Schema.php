@@ -14,6 +14,7 @@ namespace phpOlap\Xmla\Metadata;
 use phpOlap\Xmla\Connection\ConnectionInterface;
 use phpOlap\Xmla\Metadata\MetadataBase;
 use phpOlap\Metadata\SchemaInterface;
+use phpOlap\Metadata\SerializeMetadataInterface;
 
 /**
 *	Schema class
@@ -22,7 +23,7 @@ use phpOlap\Metadata\SchemaInterface;
 *	@package Xmla
 *	@subpackage Metadata
 */
-class Schema extends MetadataBase implements SchemaInterface
+class Schema extends MetadataBase implements SchemaInterface, SerializeMetadataInterface
 {
 	protected $cubes;
 	protected $description = null;
@@ -68,4 +69,23 @@ class Schema extends MetadataBase implements SchemaInterface
 		$this->connection = $connection;
 		$this->name = parent::getPropertyFromNode($node, 'SCHEMA_NAME', false);
 	}
+
+    /**
+     * {@inheritDoc}
+     */
+    public function toArray()
+    {
+        $cubes = array();
+        
+        foreach ((array) $this->getCubes() as $cube) {
+            $cubes[] = $cube->toArray();
+        }
+
+        return array(
+            'name' => $this->getName(),
+            'uniqueName' => $this->getUniqueName(),
+            'description' => $this->getDescription(),
+            'cubes' => $cubes
+        );
+    }
 }

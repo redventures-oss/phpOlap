@@ -12,6 +12,7 @@
 namespace phpOlap\Xmla\Metadata;
 
 use phpOlap\Metadata\CellDataInterface;
+use phpOlap\Metadata\SerializeMetadataInterface;
 use phpOlap\Xmla\Metadata\MetadataBase;
 
 /**
@@ -22,7 +23,7 @@ use phpOlap\Xmla\Metadata\MetadataBase;
 *  	@author Julien Jacottet <jjacottet@gmail.com>
 */
 
-class CellData implements CellDataInterface
+class CellData implements CellDataInterface, SerializeMetadataInterface
 {
 
 	protected $value;
@@ -75,5 +76,17 @@ class CellData implements CellDataInterface
 		$this->formatedValue = MetadataBase::getPropertyFromNode($node, 'FmtValue', true);
 		$this->formatString = MetadataBase::getPropertyFromNode($node, 'FormatString', true);
 	}
+
+    /**
+     * {@inheritDoc}
+     */
+    public function toArray()
+    {
+        return array(
+            'value' => $this->getValue(),
+            'formatedValue' => $this->getFormatedValue(),
+            'formatString' => $this->getFormatString()
+        );
+    }
 	
 }

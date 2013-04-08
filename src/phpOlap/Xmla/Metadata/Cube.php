@@ -14,6 +14,7 @@ namespace phpOlap\Xmla\Metadata;
 use phpOlap\Xmla\Connection\ConnectionInterface;
 use phpOlap\Xmla\Metadata\MetadataBase;
 use phpOlap\Metadata\CubeInterface;
+use phpOlap\Metadata\SerializeMetadataInterface;
 /**
 *	Cube Class
 *
@@ -21,7 +22,7 @@ use phpOlap\Metadata\CubeInterface;
 *	@package Xmla
 *	@subpackage Metadata
 */
-class Cube extends MetadataBase implements CubeInterface
+class Cube extends MetadataBase implements CubeInterface, SerializeMetadataInterface
 {
 
 	protected $type;
@@ -130,4 +131,30 @@ class Cube extends MetadataBase implements CubeInterface
 		$this->description = parent::getPropertyFromNode($node, 'DESCRIPTION');
 		$this->type = parent::getPropertyFromNode($node, 'CUBE_TYPE');
 	}
+
+    /**
+     * {@inheritDoc}
+     */
+    public function toArray()
+    {
+        $measures = array();
+        $dimensions = array();
+
+        foreach ((array) $this->getMeasures() as $measure) {
+            $measures[] = $measure->toArray();
+        }
+
+        foreach ((array) $this->getDimensionsAndHierarchiesAndLevels() as $dimension) {
+            $dimensions[] = $dimension->toArray();
+        }
+
+        return array(
+            'name' => $this->getName(),
+            'description' => $this->getDescription(),
+            'type' => $this->getType(),
+            'uniqueName' => $this->getUniqueName(),
+            'measures' => $measures,
+            'dimensions' => $dimensions
+        );
+    }
 }

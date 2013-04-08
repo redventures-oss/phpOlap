@@ -14,6 +14,7 @@ namespace phpOlap\Xmla\Metadata;
 use phpOlap\Xmla\Connection\ConnectionInterface;
 use phpOlap\Xmla\Metadata\MetadataBase;
 use phpOlap\Metadata\MeasureInterface;
+use phpOlap\Metadata\SerializeMetadataInterface;
 
 /**
 *	Measure class
@@ -22,7 +23,7 @@ use phpOlap\Metadata\MeasureInterface;
 *	@package Xmla
 *	@subpackage Metadata
 */
-class Measure extends MetadataBase implements MeasureInterface
+class Measure extends MetadataBase implements MeasureInterface, SerializeMetadataInterface
 {
 	protected $caption;
 	protected $aggregator;
@@ -102,4 +103,20 @@ class Measure extends MetadataBase implements MeasureInterface
 		$this->dataType = parent::getPropertyFromNode($node, 'DATA_TYPE');
 		$this->isVisible = parent::getPropertyFromNode($node, 'MEASURE_IS_VISIBLE');
 	}
+
+    /**
+     * {@inheritDoc}
+     */
+    public function toArray()
+    {
+        return array(
+            'name' => $this->getName(),
+            'uniqueName' => $this->getUniqueName(),
+            'description' => $this->getDescription(),
+            'caption' => $this->getCaption(),
+            'aggregator' => $this->getAggregator(),
+            'dataType' => $this->getDataType(),
+            'isVisible' => $this->isVisible()
+        );
+    }
 }	

@@ -16,6 +16,7 @@ use phpOlap\Xmla\Metadata\MetadataBase;
 use phpOlap\Xmla\Metadata\CellAxis;
 use phpOlap\Xmla\Metadata\CellData;
 use phpOlap\Metadata\ResultSetInterface;
+use phpOlap\Metadata\SerializeMetadataInterface;
 use phpOlap\Xmla\Metadata\MetadataException;
 
 /**
@@ -26,7 +27,7 @@ use phpOlap\Xmla\Metadata\MetadataException;
 *  	@author Julien Jacottet <jjacottet@gmail.com>
 */
 
-class ResultSet implements ResultSetInterface
+class ResultSet implements ResultSetInterface, SerializeMetadataInterface
 {
 	protected $cubeName;
 	protected $hierarchiesName = array();
@@ -163,7 +164,57 @@ class ResultSet implements ResultSetInterface
 		$this->cellAxisSet = self::hydrateAxesSet($node);
 		$this->cellDataSet = self::hydrateDataSet($node);
 	}
-	
+
+    /**
+     * {@inheritDoc}
+     */
+    public function toArray()
+    {
+        $colAxisSet = array();
+        $rowAxisSet = array();
+        $filterAxisSet = array();
+        $cellSet = array();
+
+        foreach ((array) $this->getColAxisSet() as $colAxis) {
+            $tmpAxis = array();
+            foreach ($colAxis as $col) {
+                $tmpAxis[] = $col->toArray();
+            }
+            $colAxisSet[] = $tmpAxis;
+        }
+
+        foreach ((array) $this->getRowAxisSet() as $rowAxis) {
+            $tmpAxis = array();
+            foreach ($rowAxis as $row) {
+                $tmpAxis[] = $row->toArray();
+            }
+            $rowAxisSet[] = $tmpAxis;
+        }
+
+        foreach ((array) $this->getFilterAxisSet() as $filterAxis) {
+            $tmpAxis = array();
+            foreach ($filterAxis as $filter) {
+                $tmpAxis[] = $filter->toArray();
+            }
+            $filterAxisSet[] = $tmpAxis;
+        }
+
+        foreach ((array) $this->getDataSet() as $cell) {
+            $cellSet[] = $cell->toArray();
+        }
+
+        return array(
+            'cubeName' => $this->getCubeName(),
+            'colHierarchiesName' => $this->getColHierarchiesName(),
+            'rowHierarchiesName' => $this->getRowHierarchiesName(),
+            'filterHierarchiesName' => $this->getFilterHierarchiesName(),
+            'colAxisSet' => $colAxisSet,
+            'rowAxisSet' => $rowAxisSet,
+            'filterAxisSet' => $filterAxisSet,
+            'cellDataSet' => $cellSet
+        );
+    }
+
 	protected static function hydrateAxesInfos(\DOMNode $node)
 	{
 		$result = array();

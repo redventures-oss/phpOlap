@@ -18,31 +18,8 @@ class MeasureTest extends \PHPUnit_Framework_TestCase
 
 	public function testHydrate()
 	{
-		$resultSoap = '<root>
-					      <row>
-					        <CATALOG_NAME>FoodMart</CATALOG_NAME>
-					        <SCHEMA_NAME>FoodMart</SCHEMA_NAME>
-					        <CUBE_NAME>Sales</CUBE_NAME>
-					        <MEASURE_NAME>Profit Growth</MEASURE_NAME>
-					        <MEASURE_UNIQUE_NAME>[Measures].[Profit Growth]</MEASURE_UNIQUE_NAME>
-					        <MEASURE_CAPTION>Gewinn-Wachstum</MEASURE_CAPTION>
-					        <MEASURE_AGGREGATOR>127</MEASURE_AGGREGATOR>
-					        <DATA_TYPE>130</DATA_TYPE>
-					        <MEASURE_IS_VISIBLE>true</MEASURE_IS_VISIBLE>
-					        <DESCRIPTION>Sales Cube - Profit Growth Member</DESCRIPTION>
-					      </row>
-						</root>';
-		
-		$document = new \DOMDocument();
-		$document->loadXML($resultSoap);
-		
-		$node = $document->getElementsByTagName('row')->item(0);
-		
-		$connection = $this->getMock('phpOlap\Xmla\Connection\Connection', array(), array(), '', FALSE);
-		
-		$measure = new Measure();
-		
-		$measure->hydrate($node, $connection);
+        $connection = $this->createConnection();
+        $measure = $this->createMeasure($connection);
 		
 		$this->assertEquals($measure->getConnection(), $connection);
 		$this->assertEquals($measure->getName(), 'Profit Growth');
@@ -53,6 +30,21 @@ class MeasureTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals($measure->getDataType(), 130);
 		$this->assertEquals($measure->isVisible(), true);
 	}
+
+    public function testToArray()
+    {
+        $connection = $this->createConnection();
+        $measure = $this->createMeasure($connection);
+        $arr = $measure->toArray();
+
+		$this->assertEquals($arr['name'], 'Profit Growth');
+		$this->assertEquals($arr['uniqueName'], '[Measures].[Profit Growth]');
+		$this->assertEquals($arr['description'], 'Sales Cube - Profit Growth Member');
+		$this->assertEquals($arr['caption'], 'Gewinn-Wachstum');
+		$this->assertEquals($arr['aggregator'], 'CALCULATED');
+		$this->assertEquals($arr['dataType'], 130);
+		$this->assertEquals($arr['isVisible'], true);
+    }
 
 	public function testMin()
 	{
@@ -124,5 +116,37 @@ class MeasureTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals($measure->getDataType(), null);
 		$this->assertEquals($measure->isVisible(), false);
 	}
-	
+
+    private function createConnection()
+    {
+		return $this->getMock('phpOlap\Xmla\Connection\Connection', array(), array(), '', FALSE);
+    }
+
+    private function createMeasure($connection)
+    {
+		$resultSoap = '<root>
+					      <row>
+					        <CATALOG_NAME>FoodMart</CATALOG_NAME>
+					        <SCHEMA_NAME>FoodMart</SCHEMA_NAME>
+					        <CUBE_NAME>Sales</CUBE_NAME>
+					        <MEASURE_NAME>Profit Growth</MEASURE_NAME>
+					        <MEASURE_UNIQUE_NAME>[Measures].[Profit Growth]</MEASURE_UNIQUE_NAME>
+					        <MEASURE_CAPTION>Gewinn-Wachstum</MEASURE_CAPTION>
+					        <MEASURE_AGGREGATOR>127</MEASURE_AGGREGATOR>
+					        <DATA_TYPE>130</DATA_TYPE>
+					        <MEASURE_IS_VISIBLE>true</MEASURE_IS_VISIBLE>
+					        <DESCRIPTION>Sales Cube - Profit Growth Member</DESCRIPTION>
+					      </row>
+						</root>';
+		
+		$document = new \DOMDocument();
+		$document->loadXML($resultSoap);
+		
+		$node = $document->getElementsByTagName('row')->item(0);
+
+		$measure = new Measure();
+		$measure->hydrate($node, $connection);
+
+        return $measure;
+    }
 }
