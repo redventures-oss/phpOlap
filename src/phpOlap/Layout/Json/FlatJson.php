@@ -125,14 +125,12 @@ class FlatJson implements LayoutInterface
             $counter = 0;
             for ($i = $start; $i < $stop; ++$i) {
                 /* TODO: break out into renderCellData method */
-                if (isset($dataSet[$i])) {
-                    $columnName = $columnAxisSet[$counter][0]->getMemberUniqueName();
-                    $row[$columnName] = array(
-                        'label' => $columnAxisSet[$counter][0]->getMemberCaption(),
-                        'value' => $dataSet[$i]->getValue(),
-                        'formatedValue' => $dataSet[$i]->getFormatedValue()
-                    );
-                }
+                $columnName = $columnAxisSet[$counter][0]->getMemberUniqueName();
+                $row[$columnName] = array(
+                    'label' => $columnAxisSet[$counter][0]->getMemberCaption(),
+                    'value' => isset($dataSet[$i]) ? $dataSet[$i]->getValue() : null,
+                    'formatedValue' => isset($dataSet[$i]) ? $dataSet[$i]->getFormatedValue() : null
+                );
                 ++$counter;
             }
             $body[] = $row;
